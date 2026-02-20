@@ -31,4 +31,36 @@
  */
 export function fixBollywoodTitle(title) {
   // Your code here
+  if (typeof title !== "string" || title.trim().length == 0) {
+    return "";
+  }
+  title = title.trim();
+  const exception = [
+    "ka",
+    "ki",
+    "ke",
+    "se",
+    "aur",
+    "ya",
+    "the",
+    "of",
+    "in",
+    "a",
+    "an",
+  ];
+  const splitTitle = title.split(" ");
+  let fixedTitle = splitTitle.map((word) => {
+    if(word == splitTitle[0]) {
+      return word.trim().charAt(0).toUpperCase() + word.trim().slice(1).toLowerCase();
+    }
+    if (exception.includes(word)) {
+      return word.trim();
+    } else {
+      return word.trim().charAt(0).toUpperCase() + word.trim().slice(1).toLowerCase();
+    }
+  });
+
+  fixedTitle = fixedTitle.filter((word) => word.length);
+
+  return fixedTitle.join(" ");
 }

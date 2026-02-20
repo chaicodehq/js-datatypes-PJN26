@@ -48,4 +48,104 @@
  */
 export function analyzeUPITransactions(transactions) {
   // Your code here
+  if(!Array.isArray(transactions) || !transactions.length) {
+    return null;
+  }
+  let validTransactions = transactions.filter(
+    (transaction) => transaction.amount > 0,
+  );
+
+  validTransactions = validTransactions.filter(
+    (transaction) =>
+      transaction.type == "credit" || transaction.type == "debit",
+  );
+  
+  if(!validTransactions.length) {
+    return null;
+  }
+
+  const totalCredit = validTransactions.reduce((total, transaction) => {
+    if (transaction.type == "credit") {
+      return total + transaction.amount;
+    } else {
+      return total;
+    }
+  }, 0);
+
+  const totalDebit = validTransactions.reduce((total, transaction) => {
+    if (transaction.type == "debit") {
+      return total + transaction.amount;
+    } else {
+      return total;
+    }
+  }, 0);
+
+  const netBalance = totalCredit - totalDebit;
+
+  const transactionCount = validTransactions.length;
+
+  const avgTransaction = Math.round(
+    (totalCredit + totalDebit) / transactionCount,
+  );
+
+  let highestTransaction;
+  let highestAmount = -Infinity;
+
+  for (const transaction of validTransactions) {
+    if (transaction.amount > highestAmount) {
+      highestAmount = transaction.amount;
+      highestTransaction = transaction;
+    }
+  }
+
+  const categoryBreakdown = {};
+
+  for (const transaction of validTransactions) {
+    if (categoryBreakdown[transaction.category] == undefined) {
+      categoryBreakdown[transaction.category] = transaction.amount;
+    } else {
+      categoryBreakdown[transaction.category] += transaction.amount;
+    }
+  }
+
+  const contact = {};
+
+  for (const transaction of validTransactions) {
+    if (contact[transaction.to] == undefined) {
+      contact[transaction.to] = 1;
+    } else {
+      contact[transaction.to]++;
+    }
+  }
+
+  const highestContact = Math.max(...Object.values(contact));
+
+  let frequentContact;
+
+  for (const key of Object.keys(contact)) {
+    if (contact[key] == highestContact) {
+      frequentContact = key;
+      break;
+    }
+  }
+
+  const allAbove100 = validTransactions.every(
+    (transaction) => transaction.amount > 100,
+  );
+  const hasLargeTransaction = validTransactions.some(
+    (transaction) => transaction.amount >= 5000,
+  );
+
+  return {
+    totalCredit,
+    totalDebit,
+    netBalance,
+    transactionCount,
+    avgTransaction,
+    highestTransaction,
+    categoryBreakdown,
+    frequentContact,
+    allAbove100,
+    hasLargeTransaction,
+  };
 }
